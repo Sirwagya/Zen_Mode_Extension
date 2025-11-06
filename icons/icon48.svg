@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-  <circle cx="24" cy="24" r="22" fill="#10b981" />
-  <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="1.8" />
-  <text x="24" y="26" font-family="-apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial" font-weight="700" font-size="28" text-anchor="middle" fill="#0b1220">Z</text>
+  <rect width="48" height="48" fill="#000" />
+  <text x="24" y="24" text-anchor="middle" dominant-baseline="central"
+        font-family="-apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial"
+        font-weight="700" font-size="32" fill="#10b981">Z</text>
 </svg>

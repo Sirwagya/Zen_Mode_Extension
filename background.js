@@ -16,37 +16,35 @@ async function generateAndSetActionIcon() {
     if (typeof OffscreenCanvas === 'undefined') return;
     const sizes = [128, 48, 16];
     const imageData = {};
-    // Theme colors: green button color and dark background
-    const GREEN = '#10b981'; // matches --btn in options.css
-    const DARK = '#0b1220';
+    // Theme colors: black square background and green Z
+    const GREEN = '#10b981';
+    const BLACK = '#000000';
 
     for (const size of sizes) {
       const canvas = new OffscreenCanvas(size, size);
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, size, size);
 
-      // draw a green circular background
-      ctx.fillStyle = GREEN;
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, Math.floor(size * 0.46), 0, Math.PI * 2);
-      ctx.fill();
+      // Draw black square background
+      ctx.fillStyle = BLACK;
+      ctx.fillRect(0, 0, size, size);
 
-      // subtle inner shadow / ring for legibility
-      ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-      ctx.lineWidth = Math.max(1, Math.floor(size * 0.04));
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, Math.floor(size * 0.36), 0, Math.PI * 2);
-      ctx.stroke();
-
-      // draw dark 'Z' letter centered
-      ctx.fillStyle = DARK;
-      const fontSize = Math.floor(size * 0.62);
-      // use bold system font for clarity at small sizes
+      // Draw centered green 'Z'
+      const fontSize = Math.floor(size * 0.70); // slightly larger for square
       ctx.font = `bold ${fontSize}px -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial`;
+      ctx.fillStyle = GREEN;
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      // optical vertical nudge
-      ctx.fillText('Z', size / 2, size / 2 + Math.round(size * 0.01));
+      ctx.textBaseline = 'alphabetic';
+
+      // Use TextMetrics to vertically center precisely when available
+      const text = 'Z';
+      const metrics = ctx.measureText(text);
+      const ascent = metrics.actualBoundingBoxAscent ?? fontSize * 0.8;
+      const descent = metrics.actualBoundingBoxDescent ?? fontSize * 0.2;
+      const textHeight = ascent + descent;
+      const y = Math.round((size - textHeight) / 2 + ascent); // center baseline
+      const x = Math.round(size / 2);
+      ctx.fillText(text, x, y);
 
       imageData[size] = ctx.getImageData(0, 0, size, size);
     }
