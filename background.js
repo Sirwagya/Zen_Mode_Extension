@@ -9,6 +9,40 @@ const STORAGE_KEYS = {
 const DEFAULT_API_KEY = 'YOUR API KEY';
 const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
+// Generate a simple circular icon with a centered "Z" and set it as the action icon.
+// This helps when packaged PNGs lack a visible foreground.
+async function generateAndSetActionIcon() {
+  try {
+    if (typeof OffscreenCanvas === 'undefined') return;
+    const sizes = [128, 48, 16];
+    const imageData = {};
+    for (const size of sizes) {
+      const canvas = new OffscreenCanvas(size, size);
+      const ctx = canvas.getContext('2d');
+      // background (transparent -> draw colored circle)
+      ctx.clearRect(0, 0, size, size);
+      // circle background
+      ctx.fillStyle = '#f97316'; // orange
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, Math.floor(size * 0.42), 0, Math.PI * 2);
+      ctx.fill();
+      // draw white Z letter
+      ctx.fillStyle = '#ffffff';
+      // choose font size relative to canvas
+      const fontSize = Math.floor(size * 0.6);
+      ctx.font = `${fontSize}px -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // slight vertical tweak for optical centering
+      ctx.fillText('Z', size / 2, size / 2 + Math.round(size * 0.02));
+      imageData[size] = ctx.getImageData(0, 0, size, size);
+    }
+    await chrome.action.setIcon({ imageData });
+  } catch (e) {
+    console.warn('generateAndSetActionIcon failed', e);
+  }
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
     [STORAGE_KEYS.BLOCKLIST]: ['youtube.com', 'instagram.com'],
@@ -16,7 +50,12 @@ chrome.runtime.onInstalled.addListener(() => {
     [STORAGE_KEYS.BREAK_MODE]: false,
     [STORAGE_KEYS.TEMP_ALLOW]: {}
   });
+  // Ensure a visible toolbar icon even if provided PNGs are only backgrounds
+  generateAndSetActionIcon().catch(() => {});
 });
+
+// Also try to set generated icon on startup of the service worker
+generateAndSetActionIcon().catch(() => {});
 
 // Badge feedback helper (avoids notifications permission)
 async function badgePing(tabId, text, ms = 2500) {
